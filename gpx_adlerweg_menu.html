@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>GPX Track Höhenprofil mit Farben nach Steigung - alle Adlerweg Etappen</title>
+
+    <link rel="stylesheet" href="./js/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="./js/leaflet.elevation/leaflet.elevation-0.0.4.css" />
+
+    <script src="./js/leaflet/leaflet.js"></script>
+    <script src="./js/leaflet.omnivore/leaflet-omnivore.js"></script>
+    <script src="./js/leaflet.elevation/leaflet.elevation-0.0.4.min.js"></script>
+    <script src="./js/d3js/d3.v3.min.js"></script>
+
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+        html, body, #map {
+            height: 90vh;
+            width: 100vw;
+        }
+        select {
+            font-size: 1.2em;
+            margin: 0.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <select id="etappen">
+        <option value="AdlerwegEtappe01.gpx" selected>Adlerweg Etappe 1 </option>
+        <option value="AdlerwegEtappe02.gpx">Adlerweg Etappe 2 </option>
+        <option value="AdlerwegEtappe03.gpx">Adlerweg Etappe 3 </option>
+        <option value="AdlerwegEtappe04.gpx">Adlerweg Etappe 4 </option>
+        <option value="AdlerwegEtappe05.gpx">Adlerweg Etappe 5 </option>
+        <option value="AdlerwegEtappe06.gpx">Adlerweg Etappe 6 </option>
+        <option value="AdlerwegEtappe07.gpx">Adlerweg Etappe 7 </option>
+        <option value="AdlerwegEtappe08.gpx">Adlerweg Etappe 8 </option>
+        <option value="AdlerwegEtappe09.gpx">Adlerweg Etappe 9 </option>
+        <option value="AdlerwegEtappe10.gpx">Adlerweg Etappe 10</option>
+        <option value="AdlerwegEtappe11.gpx">Adlerweg Etappe 11</option>
+        <option value="AdlerwegEtappe12.gpx">Adlerweg Etappe 12</option>
+        <option value="AdlerwegEtappe13.gpx">Adlerweg Etappe 13</option>
+        <option value="AdlerwegEtappe14.gpx">Adlerweg Etappe 14</option>
+        <option value="AdlerwegEtappe15.gpx">Adlerweg Etappe 15</option>
+        <option value="AdlerwegEtappe16.gpx">Adlerweg Etappe 16</option>
+        <option value="AdlerwegEtappe17.gpx">Adlerweg Etappe 17</option>
+        <option value="AdlerwegEtappe18.gpx">Adlerweg Etappe 18</option>
+        <option value="AdlerwegEtappe19.gpx">Adlerweg Etappe 19</option>
+        <option value="AdlerwegEtappe20.gpx">Adlerweg Etappe 20</option>
+        <option value="AdlerwegEtappe21.gpx">Adlerweg Etappe 21</option>
+        <option value="AdlerwegEtappe22.gpx">Adlerweg Etappe 22</option>
+        <option value="AdlerwegEtappe23.gpx">Adlerweg Etappe 23</option>
+        <option value="AdlerwegEtappe24.gpx">Adlerweg Etappe 24</option>
+        <option value="AdlerwegEtappeO1.gpx">Adlerweg Etappe O1</option>
+        <option value="AdlerwegEtappeO2.gpx">Adlerweg Etappe O2</option>
+        <option value="AdlerwegEtappeO3.gpx">Adlerweg Etappe O3</option>
+        <option value="AdlerwegEtappeO4.gpx">Adlerweg Etappe O4</option>
+        <option value="AdlerwegEtappeO5.gpx">Adlerweg Etappe O5</option>
+        <option value="AdlerwegEtappeO6.gpx">Adlerweg Etappe O6</option>
+        <option value="AdlerwegEtappeO7.gpx">Adlerweg Etappe O7</option>
+        <option value="AdlerwegEtappeO8.gpx">Adlerweg Etappe O8</option>
+        <option value="AdlerwegEtappeO9.gpx">Adlerweg Etappe O9</option>
+    </select>
+    <div id="map"></div>
+
+    <script>
+        // WMTS-Layer basemap.at - Quelle: http://www.basemap.at/wmts/1.0.0/WMTSCapabilities.xml
+        var layers = {
+            geolandbasemap: L.tileLayer("https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapgrau: L.tileLayer("https://{s}.wien.gv.at/basemap/bmapgrau/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapoverlay: L.tileLayer("https://{s}.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaphidpi: L.tileLayer("https://{s}.wien.gv.at/basemap/bmaphidpi/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaporthofoto30cm: L.tileLayer("https://{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                subdomains: ['a', 'b', 'c'],
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            })
+        };
+
+        // Karte definieren
+        var map = L.map('map', {
+            layers: [layers.bmapgrau]
+        });
+
+        // Maßstab hinzufügen
+        L.control.scale({
+            maxWidth: 200,
+            metric: true,
+            imperial: false
+        }).addTo(map);
+
+        // Gruppe für GPX Track (ohne Farben) vorbereiten
+        var gpxTrackGroup = L.featureGroup().addTo(map);
+
+        // Gruppe für die farbige Linie nach Steigung vorbereiten
+        var coloredLineGroup = L.featureGroup().addTo(map);
+
+        // Höhenprofil control hinzufügen
+        var profileControl = L.control.elevation({
+            position : 'bottomleft',
+            theme : 'steelblue-theme'
+        });
+        profileControl.addTo(map);
+
+        // Funktion zum Laden eines Tracks
+        function loadTrack(gpxFile) {
+            // bestehenden Track, farbige Linie mit Steigung und Profil löschen
+            gpxTrackGroup.clearLayers();
+            coloredLineGroup.clearLayers();
+            profileControl.clear();
+
+            // GPX Track laden
+            gpxTrack = omnivore.gpx('gpx/' + gpxFile).addTo(gpxTrackGroup);
+
+            // nach erfolgreichem Laden Ausschnitt setzen, Höhenprofil und farbige Linie erzeugen
+            gpxTrack.on('ready', function () {
+
+                // Ausschnitt setzen
+                map.fitBounds(gpxTrack.getBounds());
+
+                // Höhenprofil mit Farbe nach Steigung erzeugen
+                gpxTrack.eachLayer(function(layer) {
+                    // Höhenprofil erzeugen
+                    profileControl.addData(layer.feature);
+
+                    // Kurzvariable für Punkte des Tracks definieren
+                    var pts = layer.feature.geometry.coordinates;
+
+                    // farbige Linie nach Steigung erzeugen
+                    // die for-Schleife beginnt ab dem zweiten Punkt, damit sicher ein vorhergehender Punkt existiert
+                    for (var i = 1; i < pts.length; i += 1) {
+                        // Entfernung zwischen den beiden Punkten berechnen (Genauigkeit Meter)
+                        var dist = map.distance(
+                            [ pts[i-1][1],pts[i-1][0] ],    // vorhergehender Punkt
+                            [ pts[i][1],pts[i][0] ]         // aktuelle Punkt
+                        ).toFixed(0);
+
+                        // Höhenunterschied zwischen den beiden Punkten berechnen
+                        var delta = pts[i][2] - pts[i-1][2];
+
+                        // Steigung in Radiant berechnen - http://www.mathebibel.de/steigungswinkel
+                        var rad = Math.atan(delta / dist);
+
+                        // Radiant in Grad umrechnen - http://www.rapidtables.com/convert/number/radians-to-degrees.htm (Genauigkeit Zehntelgrad)
+                        var deg = (rad * (180 / Math.PI)).toFixed(1);
+
+                        // Farbe nach Steigung bestimmen - Paletten von http://colorbrewer2.org
+                        // Aufstieg - http://colorbrewer2.org/?type=sequential&scheme=YlOrRd&n=6 (ohne gelb)
+                        // Abstieg - http://colorbrewer2.org/?type=sequential&scheme=YlGn&n=6 (ohne gelb)
+                        var lineColor = null;
+                        switch (true) {
+                            case deg >=  20 : lineColor = '#bd0026'; break;
+                            case deg >=  15 : lineColor = '#f03b20'; break;
+                            case deg >=  10 : lineColor = '#fd8d3c'; break;
+                            case deg >=   5 : lineColor = '#feb24c'; break;
+                            case deg >=   1 : lineColor = '#fed976'; break;
+                            case deg >=  -1 : lineColor = 'yellow'; break;
+                            case deg >=  -5 : lineColor = '#d9f0a3'; break;
+                            case deg >= -10 : lineColor = '#addd8e'; break;
+                            case deg >= -15 : lineColor = '#78c679'; break;
+                            case deg >= -20 : lineColor = '#31a354'; break;
+                            case deg <  -20 : lineColor = '#006837'; break;
+                        }
+
+                        // farbige Linie mit Tooltip zeichnen
+                        L.polyline([
+                            [ pts[i-1][1],pts[i-1][0] ],
+                            [ pts[i][1],pts[i][0] ],
+                        ], {
+                            color: lineColor,
+                            weight : 6
+                        }).addTo(coloredLineGroup).bindTooltip(deg + '° (' + dist + 'm)')
+                    }
+                });
+            });
+        }
+        // ersten Track laden
+        loadTrack('AdlerwegEtappe01.gpx');
+
+        // auf Änderungen des Auswahlmenüs reagieren -> neue Tracks laden
+        document.getElementById("etappen").onchange = function (evt) {
+            // .gpx Dateinamen aus dem Wert des selektierten Menüeintrags extrahieren
+            var gpxFile = evt.target.options[evt.target.selectedIndex].value;
+
+            // Funktion zum Laden des Tracks aufrufen
+            loadTrack(gpxFile);
+        };
+
+        // WMTS-Layer Auswahl hinzufügen
+        var layerControl = L.control.layers({
+            "basemap.at - STANDARD": layers.geolandbasemap,
+            "basemap.at - GRAU": layers.bmapgrau,
+            "basemap.at - OVERLAY": layers.bmapoverlay,
+            "basemap.at - HIGH-DPI": layers.bmaphidpi,
+            "basemap.at - ORTHOFOTO": layers.bmaporthofoto30cm,
+            "OpenStreetMap": layers.osm,
+        },{
+            "Verlauf der Etappe" : gpxTrackGroup,
+            "Steigungen der Etappe" : coloredLineGroup
+        }).addTo(map);
+
+    </script>
+
+</body>
+
+</html>

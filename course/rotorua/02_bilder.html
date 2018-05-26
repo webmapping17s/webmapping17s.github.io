@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vulkanismus bei Rotorua</title>
+    <style>
+        figure img {
+            width: 600px;
+        }
+        .current {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+<h1>Wai-O-Tapu &amp; Waimangu</h1>
+<nav id="figureSelector">
+    <input id="button1" type="button" value="Bild 1" data-image="p1130147.jpg" data-title="Lady Knox Geysir (Wai-O-Tapu Thermal Wonderland)" class="current"/>
+    <input type="button" value="Bild 2" data-image="p1130159.jpg" data-title="Mud pools (Wai-O-Tapu Thermal Wonderland)" />
+    <input type="button" value="Bild 3" data-image="p1130224.jpg" data-title="Artist's Palette (Wai-O-Tapu Thermal Wonderland)" />
+    <input type="button" value="Bild 4" data-image="p1130229.jpg" data-title="Champagne Pool (Wai-O-Tapu Thermal Wonderland)" />
+    <input type="button" value="Bild 5" data-image="p1130256.jpg" data-title="Frying Pan Lake (Waimangu Volcanic Valley)" />
+    <input type="button" value="Bild 6" data-image="p1130279.jpg" data-title="Inferno Crater Lake (Waimangu Volcanic Valley)" />
+    <input type="button" value="Bild 7" data-image="p1130274.jpg" data-title="Birds Nest Terrace (Waimangu Volcanic Valley)" />
+    <input type="button" value="Bild 8" data-image="p1130307.jpg" data-title="War Brick Terrace (Waimangu Volcanic Valley)" />
+</nav>
+
+<figure>
+    <img id="figureImage" src="images/p1130147.jpg" alt="Lady Knox Geysir (Wai-O-Tapu Thermal Wonderland)" />
+    <figcaption id="figureCaption">Lady Knox Geysir (Wai-O-Tapu Thermal Wonderland)</figcaption>
+</figure>
+
+<script>
+    // img-Element des angezeigten Bildes finden
+    var bild = document.getElementById("figureImage");
+
+    // figcaption-Element der Bildunterschrift finden
+    var unterschrift = document.getElementById("figureCaption");
+
+    // input-Element des ersten Buttons finden
+    var letzterButton = document.getElementById("button1");
+
+    // nav-Element mit allen Buttons finden
+    var navigation = document.getElementById("figureSelector");
+
+    // beim Klick auf eine Button das passende Bild mit Unterschrift anzeigen
+    navigation.onclick = function (evt) {
+        // das evt-Objekt in der Browserkonsole anzeigen
+        console.log(evt);
+
+        // Bildname und Bildtitle aus den data-Attributen des Buttons lesen und in der Konsole anzeigen
+        var bildname = evt.target.getAttribute("data-image");
+        var bildtitel = evt.target.getAttribute("data-title");
+        console.log(bildname, bildtitel);
+
+        // das src-Attribut des neuen Bildes im Unterverzeichnis images/ setzen
+        bild.src = "images/" + bildname;
+
+        // das figcaption-element der Bildunterschrift setzen
+        unterschrift.innerHTML = bildtitel;
+
+        // den geklickten Button als aktiv (fett) markieren
+        evt.target.setAttribute("class", "current");
+
+        // den letzten aktiven Button deaktivieren
+        letzterButton.removeAttribute("class");
+
+        // den geklickten Button als neuen "letzten" Button merken
+        letzterButton = evt.target;
+    };
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Übersichtskarte Innsbruck 4 (Marker ein-/ausblenden)</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css" /> 
+    <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"></script>
+
+    <style>
+        h1 {
+            text-align: center;
+        }
+        #ibkMap {
+            width: 900px;
+            height: 600px;
+            border: 1px solid black;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Übersichtskarte Innsbruck 4 (Marker ein-/ausblenden)</h1>
+
+    <div id="ibkMap"></div>
+
+    <script>
+        // WMTS-Layer definieren - Quelle: http://www.basemap.at/wmts/1.0.0/WMTSCapabilities.xml
+        var layers = {
+            geolandbasemap : L.tileLayer("https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapgrau : L.tileLayer("https://{s}.wien.gv.at/basemap/bmapgrau/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapoverlay : L.tileLayer("https://{s}.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaphidpi : L.tileLayer("https://{s}.wien.gv.at/basemap/bmaphidpi/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaporthofoto30cm : L.tileLayer("https://{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            osm : L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                subdomains: ['a','b','c'],
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            })
+        };
+
+        // Karte definieren und Ausschnitt setzen
+        var map = L.map('ibkMap', {
+            layers : [layers.geolandbasemap],
+            center : [47.208611, 11.460556],
+            zoom : 12
+        });
+
+        // Maßstab hinzufügen
+        L.control.scale({
+            maxWidth : 200,
+            metric : true,
+            imperial : false
+        }).addTo(map);
+
+        // Marker mit Tooltip und Popup hinzufügen
+        var marker = L.marker([47.208611, 11.460556]).addTo(map);
+        marker.bindTooltip('Webcam Patscherkofel');
+        marker.bindPopup('<h2>Blick vom Patscherkofel!</h2><img style="width:300px;" src="https://apps.tirol.gv.at/luft/patscherkofel.jpg" alt="Webcam" />', {
+            minWidth : 320
+        })
+
+        // WMTS-Layer Auswahl und Marker Auswahl Overlay hinzufügen
+        L.control.layers({
+            "basemap.at - STANDARD" : layers.geolandbasemap,
+            "basemap.at - GRAU": layers.bmapgrau,
+            "basemap.at - OVERLAY" : layers.bmapoverlay,
+            "basemap.at - HIGH-DPI" : layers.bmaphidpi,
+            "basemap.at - ORTHOFOTO" : layers.bmaporthofoto30cm,
+            "OpenStreetMap" : layers.osm
+        },
+        {
+            "Marker anzeigen" : marker
+        }).addTo(map)
+
+    </script>
+
+</body>
+</html>

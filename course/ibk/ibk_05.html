@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Übersichtskarte Innsbruck 5 (Markergruppe)</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css" /> 
+    <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"></script>
+
+    <style>
+        h1 {
+            text-align: center;
+        }
+        #ibkMap {
+            width: 900px;
+            height: 600px;
+            border: 1px solid black;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Übersichtskarte Innsbruck 5 (Markergruppe)</h1>
+
+    <div id="ibkMap"></div>
+
+    <script>
+        // WMTS-Layer definieren - Quelle: http://www.basemap.at/wmts/1.0.0/WMTSCapabilities.xml
+        var layers = {
+            geolandbasemap : L.tileLayer("https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapgrau : L.tileLayer("https://{s}.wien.gv.at/basemap/bmapgrau/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapoverlay : L.tileLayer("https://{s}.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaphidpi : L.tileLayer("https://{s}.wien.gv.at/basemap/bmaphidpi/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaporthofoto30cm : L.tileLayer("https://{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains : ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution : 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            osm : L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                subdomains: ['a','b','c'],
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            })
+        };
+
+        // Karte definieren und Ausschnitt setzen
+        var map = L.map('ibkMap', {
+            layers : [layers.geolandbasemap],
+            center : [47.208611, 11.460556],
+            zoom : 12
+        });
+
+        // Maßstab hinzufügen
+        L.control.scale({
+            maxWidth : 200,
+            metric : true,
+            imperial : false
+        }).addTo(map);
+
+        // 6 Marker mit Tooltip und Popup als Gruppe hinzufügen
+        var markerGruppe = L.featureGroup();
+        var etappen = [
+            { lat : 47.26448, lng : 11.38521, place : 'Universität', description : 'Fußweg 5 Minuten stadteinwärts bis zum Terminal Marktplatz' },
+            { lat : 47.26652, lng : 11.39009, place : 'Marktplatz', description : 'Buslinie J Richtung Patscherkofelbahn (20 Minuten)' },
+            { lat : 47.22958, lng : 11.41403, place : 'Igls', description : 'Aussteigen Station Patscherkofelbahn, Seilbahn zum Patscherkofel' },
+            { lat : 47.21112, lng : 11.45239, place : 'Patscherkofel', description : 'gemütlicher Zirbenweg nach Boscheben' },
+            { lat : 47.212244, lng : 11.477097, place : 'Boscheben', description : '300 Höhenmeter Abstieg zum Meißner Haus' },
+            { lat : 47.208170, lng : 11.488502, place : 'Meißner Haus', description : 'Sie haben ihr Ziel erreicht!' }
+        ]
+        for (var i = 0; i < etappen.length; i += 1) {
+            var marker = L.marker([etappen[i].lat, etappen[i].lng]).addTo(markerGruppe);
+            marker.bindTooltip(etappen[i].place);
+            marker.bindPopup('<h3>' + etappen[i].place + '</h3><p>' + etappen[i].description + '</p>');
+        }
+        markerGruppe.addTo(map);
+
+        // WMTS-Layer Auswahl und Marker Auswahl Overlay hinzufügen
+        L.control.layers({
+            "basemap.at - STANDARD" : layers.geolandbasemap,
+            "basemap.at - GRAU": layers.bmapgrau,
+            "basemap.at - OVERLAY" : layers.bmapoverlay,
+            "basemap.at - HIGH-DPI" : layers.bmaphidpi,
+            "basemap.at - ORTHOFOTO" : layers.bmaporthofoto30cm,
+            "OpenStreetMap" : layers.osm
+        },
+        {
+            "Marker anzeigen" : markerGruppe
+        }).addTo(map)
+
+        // Ausschnitt zentrieren
+        map.fitBounds(markerGruppe.getBounds());
+
+    </script>
+
+</body>
+</html>

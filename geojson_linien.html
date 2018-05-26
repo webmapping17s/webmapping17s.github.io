@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>GeoJSON Linien Beispiel - Themenradwege Wien</title>
+
+    <link rel="stylesheet" href="./js/leaflet/leaflet.css" />
+    <script src="./js/leaflet/leaflet.js"></script>
+
+    <script src="geojson/wien_themenradwege_linien.json.js"></script>
+
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+        html, body, #map {
+            height: 100vh;
+            width: 100vw;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+        // WMTS-Layer basemap.at - Quelle: http://www.basemap.at/wmts/1.0.0/WMTSCapabilities.xml
+        var layers = {
+            geolandbasemap: L.tileLayer("https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapgrau: L.tileLayer("https://{s}.wien.gv.at/basemap/bmapgrau/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmapoverlay: L.tileLayer("https://{s}.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.png", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaphidpi: L.tileLayer("https://{s}.wien.gv.at/basemap/bmaphidpi/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            bmaporthofoto30cm: L.tileLayer("https://{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg", {
+                subdomains: ['maps', 'maps1', 'maps2', 'maps3', 'maps4'],
+                attribution: 'Datenquelle: <a href="http://www.basemap.at/">basemap.at</a>'
+            }),
+            osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                subdomains: ['a', 'b', 'c'],
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            })
+        };
+
+        // Karte definieren
+        var map = L.map('map', {
+            layers: [layers.bmapgrau],
+            center : [47.654, 13.370],
+            zoom : 8
+        });
+
+        // Maßstab hinzufügen
+        L.control.scale({
+            maxWidth: 200,
+            metric: true,
+            imperial: false
+        }).addTo(map);
+
+        // Farbige Linien der Themenradwege mit Popup hinzufügen
+        var themenradwegeLinien = L.geoJSON(window.THEMENRADWEGELINIEN, {
+            onEachFeature : function (feature, layer) {
+                layer.bindPopup(feature.properties.BEZEICHNUNG);
+            },
+            style : function (feature) {
+                // Farben: http://colorbrewer2.org/#type=sequential&scheme=YlOrRd&n=9 (4 - 9)
+                var stroke = '';
+                switch (feature.properties.BEZEICHNUNG) {
+                    case "Wiental-Radweg" : stroke = "#feb24c"; break;
+                    case "Bernstein-Radweg" : stroke = "#fd8d3c"; break;
+                    case "City-Radweg" : stroke = "#fc4e2a"; break;
+                    case "Donau-Radweg" : stroke = "#e31a1c"; break;
+                    case "Gürtel-Radweg" : stroke = "#bd0026"; break;
+                    case "Ring-Rund-Radweg" : stroke = "#800026"; break;
+                    default : stroke = "yellow";
+                }
+                return {
+                    color: stroke
+                };
+            }
+        }).addTo(map);
+
+        // Ausschnitt auf Linien der Themenradwege setzen
+        map.fitBounds(themenradwegeLinien.getBounds());
+
+        // WMTS-Layer Auswahl hinzufügen
+        var layerControl = L.control.layers({
+            "basemap.at - STANDARD": layers.geolandbasemap,
+            "basemap.at - GRAU": layers.bmapgrau,
+            "basemap.at - OVERLAY": layers.bmapoverlay,
+            "basemap.at - HIGH-DPI": layers.bmaphidpi,
+            "basemap.at - ORTHOFOTO": layers.bmaporthofoto30cm,
+            "OpenStreetMap": layers.osm,
+        },{
+            "Themenradwege - Linien" : themenradwegeLinien
+        }).addTo(map);
+
+    </script>
+
+</body>
+
+</html>
