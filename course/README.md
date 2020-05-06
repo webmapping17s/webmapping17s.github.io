@@ -28,6 +28,6 @@
 Alle drei Bestandteile müssen positiv absolviert werden.
 
 ### Links
-* [https://github.com/webmapping](https://github.com/webmapping)
-* [https://webmapping.github.io](https://webmapping.github.io)
+* [https://github.com/webmapping17s](https://github.com/webmapping17s)
+* [https://webmapping17s.github.io](https://webmapping17s.github.io)
 * [https://lfuonline.uibk.ac.at/public/lfuonline_lv.details?sem_id_in=17S&lvnr_id_in=716409](https://lfuonline.uibk.ac.at/public/lfuonline_lv.details?sem_id_in=17S&lvnr_id_in=716409)
